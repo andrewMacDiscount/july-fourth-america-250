@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>250 Celebration RSVP - July 4th, 2026</title>
+
+  <!-- Open Graph meta tags for link previews -->
+  <meta property="og:title" content="250 Celebration - July 4th, 2026">
+  <meta property="og:description" content="You're invited! Food, Private Bartender, Swimming, Games and Fireworks. 5pm at the Stewarts House.">
+  <meta property="og:image" content="image0.jpeg">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter/iMessage card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="250 Celebration - July 4th, 2026">
+  <meta name="twitter:description" content="You're invited! Food, Private Bartender, Swimming, Games and Fireworks. 5pm at the Stewarts House.">
+  <meta name="twitter:image" content="image0.jpeg">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #1a1a6e 0%, #2c3e8c 30%, #c0392b 70%, #f5f5f5 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    .invitation-image {
+      max-width: 480px;
+      width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      margin-bottom: 2rem;
+    }
+
+    .rsvp-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      padding: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .rsvp-card h2 {
+      font-size: 1.5rem;
+      color: #1a1a6e;
+      margin-bottom: 0.5rem;
+    }
+
+    .rsvp-card p.subtitle {
+      color: #555;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    form {
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #1a1a6e;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    button {
+      flex: 1;
+      padding: 0.85rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .btn-accept {
+      background: #3C3B6E;
+      color: white;
+    }
+
+    .btn-accept:hover {
+      opacity: 0.9;
+    }
+
+    .btn-decline {
+      background: #c0392b;
+      color: white;
+    }
+
+    .btn-decline:hover {
+      opacity: 0.9;
+    }
+
+    .confirmation {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .confirmation.accepted {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .confirmation.declined {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    #rsvp-form.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <img
+    src="image0.jpeg"
+    alt="250 Celebration - Please join us for our 250th celebration. Food, Private Bartender, Swimming, Games and Fireworks. 4 July 2026, 5pm to Late. The Stewarts House, 672 Valencia Road, Mars, PA 16046. Bring the whole family, a snack and towels for the kids!"
+    class="invitation-image"
+  >
+
+  <div class="rsvp-card">
+    <h2>RSVP</h2>
+    <p class="subtitle">Let the Stewarts know if you can make it!</p>
+
+    <form id="rsvp-form" aria-label="RSVP Form">
+      <label for="name">Your Name</label>
+      <input type="text" id="name" name="name" required placeholder="Enter your name">
+
+      <label for="guests">Number of Guests (including you)</label>
+      <input type="number" id="guests" name="guests" min="1" max="20" value="1">
+
+      <div class="btn-group">
+        <button type="button" class="btn-accept" onclick="submitRSVP('accepted')">Count Me In! 🎉</button>
+        <button type="button" class="btn-decline" onclick="submitRSVP('declined')">Can't Make It</button>
+      </div>
+    </form>
+
+    <div class="confirmation" id="confirmation" role="alert"></div>
+  </div>
+
+  <script>
+    function submitRSVP(response) {
+      const name = document.getElementById('name').value.trim();
+      if (!name) {
+        document.getElementById('name').focus();
+        return;
+      }
+
+      const guests = document.getElementById('guests').value;
+      const form = document.getElementById('rsvp-form');
+      const confirmation = document.getElementById('confirmation');
+
+      form.classList.add('hidden');
+      confirmation.style.display = 'block';
+
+      if (response === 'accepted') {
+        confirmation.className = 'confirmation accepted';
+        confirmation.textContent = `🎉 Thanks, ${name}! You're confirmed for ${guests} guest${guests > 1 ? 's' : ''}. See you on the 4th!`;
+      } else {
+        confirmation.className = 'confirmation declined';
+        confirmation.textContent = `We'll miss you, ${name}! Hope to see you next time. 🙁`;
+      }
+
+      // Log to console (replace with a real backend/API call to collect responses)
+      console.log('RSVP:', { name, guests: parseInt(guests), response });
+    }
+  </script>
+</body>
+</html>
