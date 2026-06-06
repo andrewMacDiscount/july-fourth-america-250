@@ -287,6 +287,7 @@
         if (response === 'accepted') {
           confirmation.className = 'confirmation accepted';
           confirmation.textContent = `🎉 Thanks, ${name}! You're confirmed for ${guests} guest${guests > 1 ? 's' : ''}. See you on the 4th!`;
+          loadGuestList();
         } else {
           confirmation.className = 'confirmation declined';
           confirmation.textContent = `We'll miss you, ${name}! Hope to see you next time. 🙁`;
@@ -302,7 +303,6 @@
     // Load accepted RSVPs
     function loadGuestList() {
       db.collection('rsvps')
-        .where('response', '==', 'accepted')
         .get()
         .then((snapshot) => {
           const list = document.getElementById('guest-list');
@@ -310,16 +310,23 @@
           list.innerHTML = '';
 
           let totalGuests = 0;
+          const accepted = [];
 
-          if (snapshot.empty) {
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.response === 'accepted') {
+              accepted.push(data);
+              totalGuests += data.guests;
+            }
+          });
+
+          if (accepted.length === 0) {
             list.innerHTML = '<li class="guest-list-loading">No RSVPs yet — be the first!</li>';
             totalEl.textContent = '';
             return;
           }
 
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            totalGuests += data.guests;
+          accepted.forEach((data) => {
             const li = document.createElement('li');
             li.innerHTML = `<span>${data.name}</span><span class="guest-count">${data.guests} guest${data.guests > 1 ? 's' : ''}</span>`;
             list.appendChild(li);
