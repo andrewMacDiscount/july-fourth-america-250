@@ -8,14 +8,14 @@
   <!-- Open Graph meta tags for link previews -->
   <meta property="og:title" content="250 Celebration - July 4th, 2026">
   <meta property="og:description" content="You're invited! Food, Private Bartender, Swimming, Games and Fireworks. 5pm at the Stewarts House.">
-  <meta property="og:image" content="image0.jpeg">
+  <meta property="og:image" content="https://andrewmacdiscount.github.io/july-fourth-america-250/image0.jpeg">
   <meta property="og:type" content="website">
 
   <!-- Twitter/iMessage card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="250 Celebration - July 4th, 2026">
   <meta name="twitter:description" content="You're invited! Food, Private Bartender, Swimming, Games and Fireworks. 5pm at the Stewarts House.">
-  <meta name="twitter:image" content="image0.jpeg">
+  <meta name="twitter:image" content="https://andrewmacdiscount.github.io/july-fourth-america-250/image0.jpeg">
   <style>
     * {
       margin: 0;
@@ -151,6 +151,61 @@
     #rsvp-form.hidden {
       display: none;
     }
+
+    .guest-list-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      padding: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .guest-list-card h2 {
+      font-size: 1.5rem;
+      color: #1a1a6e;
+      margin-bottom: 0.25rem;
+    }
+
+    .guest-list-card .total {
+      color: #555;
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .guest-list {
+      list-style: none;
+      text-align: left;
+    }
+
+    .guest-list li {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #333;
+    }
+
+    .guest-list li:last-child {
+      border-bottom: none;
+    }
+
+    .guest-list .guest-count {
+      background: #3C3B6E;
+      color: white;
+      border-radius: 12px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .guest-list-loading {
+      color: #888;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -180,7 +235,31 @@
     <div class="confirmation" id="confirmation" role="alert"></div>
   </div>
 
+  <div class="guest-list-card">
+    <h2>Who's Coming 🎊</h2>
+    <p class="total" id="total-guests"></p>
+    <ul class="guest-list" id="guest-list">
+      <li class="guest-list-loading">Loading...</li>
+    </ul>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
   <script>
+    // Initialize Firebase
+    firebase.initializeApp({
+      apiKey: "AIzaSyA04na58GLl0agrMw_EGj3N4zTxnyoGZoo",
+      authDomain: "julyfourth250.firebaseapp.com",
+      projectId: "julyfourth250",
+      storageBucket: "julyfourth250.firebasestorage.app",
+      messagingSenderId: "155643186377",
+      appId: "1:155643186377:web:48b08a54701582d83f5118"
+    });
+
+    const db = firebase.firestore();
+
     function submitRSVP(response) {
       const name = document.getElementById('name').value.trim();
       if (!name) {
@@ -188,24 +267,73 @@
         return;
       }
 
-      const guests = document.getElementById('guests').value;
+      const guests = parseInt(document.getElementById('guests').value);
       const form = document.getElementById('rsvp-form');
       const confirmation = document.getElementById('confirmation');
 
-      form.classList.add('hidden');
-      confirmation.style.display = 'block';
+      // Disable buttons while saving
+      form.querySelectorAll('button').forEach(btn => btn.disabled = true);
 
-      if (response === 'accepted') {
-        confirmation.className = 'confirmation accepted';
-        confirmation.textContent = `🎉 Thanks, ${name}! You're confirmed for ${guests} guest${guests > 1 ? 's' : ''}. See you on the 4th!`;
-      } else {
-        confirmation.className = 'confirmation declined';
-        confirmation.textContent = `We'll miss you, ${name}! Hope to see you next time. 🙁`;
-      }
+      db.collection('rsvps').add({
+        name: name,
+        guests: guests,
+        response: response,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        form.classList.add('hidden');
+        confirmation.style.display = 'block';
 
-      // Log to console (replace with a real backend/API call to collect responses)
-      console.log('RSVP:', { name, guests: parseInt(guests), response });
+        if (response === 'accepted') {
+          confirmation.className = 'confirmation accepted';
+          confirmation.textContent = `🎉 Thanks, ${name}! You're confirmed for ${guests} guest${guests > 1 ? 's' : ''}. See you on the 4th!`;
+        } else {
+          confirmation.className = 'confirmation declined';
+          confirmation.textContent = `We'll miss you, ${name}! Hope to see you next time. 🙁`;
+        }
+      })
+      .catch((error) => {
+        console.error('Error saving RSVP:', error);
+        form.querySelectorAll('button').forEach(btn => btn.disabled = false);
+        alert('Something went wrong. Please try again!');
+      });
     }
+
+    // Load accepted RSVPs
+    function loadGuestList() {
+      db.collection('rsvps')
+        .where('response', '==', 'accepted')
+        .get()
+        .then((snapshot) => {
+          const list = document.getElementById('guest-list');
+          const totalEl = document.getElementById('total-guests');
+          list.innerHTML = '';
+
+          let totalGuests = 0;
+
+          if (snapshot.empty) {
+            list.innerHTML = '<li class="guest-list-loading">No RSVPs yet — be the first!</li>';
+            totalEl.textContent = '';
+            return;
+          }
+
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            totalGuests += data.guests;
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${data.name}</span><span class="guest-count">${data.guests} guest${data.guests > 1 ? 's' : ''}</span>`;
+            list.appendChild(li);
+          });
+
+          totalEl.textContent = `${totalGuests} total guest${totalGuests !== 1 ? 's' : ''} confirmed`;
+        })
+        .catch((error) => {
+          console.error('Error loading guest list:', error);
+          document.getElementById('guest-list').innerHTML = '<li class="guest-list-loading">Could not load guest list</li>';
+        });
+    }
+
+    loadGuestList();
   </script>
 </body>
 </html>
