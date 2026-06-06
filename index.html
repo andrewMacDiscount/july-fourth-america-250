@@ -328,12 +328,12 @@
       <label for="guests">Number of Guests (including you)</label>
       <input type="number" id="guests" name="guests" min="1" max="20" value="1">
 
-      <div class="btn-group">
-        <div style="display:flex;flex-direction:column;flex:1;gap:0.5rem;">
+      <div class="btn-group" style="flex-direction:column;">
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
           <img src="patrickhenry.jpg" alt="Patrick Henry" style="width:100%;border-radius:8px;">
           <button type="button" class="btn-accept" onclick="submitRSVP('accepted')">Count Me In! 🎉</button>
         </div>
-        <div style="display:flex;flex-direction:column;flex:1;gap:0.5rem;">
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
           <img src="johnjay.jpeg" alt="John Jay" style="width:100%;border-radius:8px;">
           <button type="button" class="btn-decline" onclick="submitRSVP('declined')">Can't Make It</button>
         </div>
